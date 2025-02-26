@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+    header {
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    table th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Our Trip Booking Platform</h1>
+  </header>
+  <div class="container">
+    <h2>Submit Your Trip Proposal</h2>
+    <!-- Embed Tally Form -->
+    <iframe src="https://tally.so/embed/your-form-id" frameborder="0"></iframe>
+
+    <h2>Live Updates from Recent Submissions</h2>
+    <!-- Live Data Table -->
+    <table id="liveData">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Number of Travelers</th>
+          <th>Trip Details</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- JavaScript for Fetching Live Data -->
+  <script>
+    // Replace with your Google Sheet ID and API key
+    const SHEET_ID = 'your-sheet-id';
+    const API_KEY = 'your-api-key';
+
+    async function fetchSheetData() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/A1:D10?key=${API_KEY}`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const rows = data.values || [];
+        populateTable(rows);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    function populateTable(rows) {
+      const tbody = document.querySelector('#liveData tbody');
+      tbody.innerHTML = ''; // Clear previous data
+      rows.slice(1).forEach(row => { // Skip header row
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Fetch data every 60 seconds
+    setInterval(fetchSheetData, 60000);
+    fetchSheetData(); // Initial load
+  </script>
+</body>
+</html>
